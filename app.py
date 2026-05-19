@@ -1,48 +1,57 @@
 import streamlit as st
 from utils.video_creator import create_video
 
+# ---------------- PAGE CONFIG ----------------
+
 st.set_page_config(
-    page_title="AI YouTube Video Generator",
+    page_title="AI Animation Video Generator",
     layout="wide"
 )
 
-# CSS
+# ---------------- CSS ----------------
+
 with open("styles/style.css") as f:
     st.markdown(
         f"<style>{f.read()}</style>",
         unsafe_allow_html=True
     )
 
-st.title("🎬 AI YouTube Video Generator")
+# ---------------- TITLE ----------------
+
+st.title("🎬 AI 3-Minute Animation Generator")
+
+st.write("Generate cinematic AI animation videos from prompts"
+)
+
+# ---------------- INPUT ----------------
 
 prompt = st.text_area(
-    "Enter Prompt",
-    height=180
+    "Enter Animation Prompt",
+    height=180,
+    placeholder="Example: futuristic cyberpunk city with flying cars..."
 )
 
-duration = st.slider(
-    "Duration",
-    3,
-    8,
-    5
-)
+# 3 minutes = 180 frames at 1 fps
+video_length = 180
 
-if st.button("🚀 Generate Video"):
+# ---------------- BUTTON ----------------
+
+if st.button("🚀 Generate 3-Minute AI Video"):
 
     if prompt.strip() == "":
-        st.warning("Enter prompt")
+        st.warning("Please enter prompt")
 
     else:
 
-        with st.spinner("Generating AI Video..."):
+        with st.spinner("Generating cinematic AI animation..."):
 
             video_path = create_video(
                 prompt,
-                duration
+                video_length
             )
 
             st.success(
-                "✅ Video Generated!"
+                "✅ AI Video Generated Successfully!"
             )
 
             st.video(video_path)
@@ -52,6 +61,6 @@ if st.button("🚀 Generate Video"):
                 st.download_button(
                     "⬇ Download Video",
                     data=file,
-                    file_name="ai_video.mp4",
+                    file_name="ai_animation_video.mp4",
                     mime="video/mp4"
                 )
