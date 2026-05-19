@@ -1,47 +1,40 @@
 import streamlit as st
-from utils.video_generator import create_video
-
-# ---------------- PAGE CONFIG ----------------
+from utils.video_creator import create_video
 
 st.set_page_config(
-    page_title="AI Video Generator",
-    layout="centered"
+    page_title="AI YouTube Video Generator",
+    layout="wide"
 )
 
-# ---------------- CSS ----------------
-
+# CSS
 with open("styles/style.css") as f:
     st.markdown(
         f"<style>{f.read()}</style>",
         unsafe_allow_html=True
     )
 
-# ---------------- TITLE ----------------
-
-st.title("🎬 AI Video Generator")
+st.title("🎬 AI YouTube Video Generator")
 
 prompt = st.text_area(
     "Enter Prompt",
-    height=150
+    height=180
 )
 
 duration = st.slider(
-    "Video Duration",
+    "Duration",
     3,
     8,
     5
 )
 
-# ---------------- BUTTON ----------------
-
 if st.button("🚀 Generate Video"):
 
     if prompt.strip() == "":
-        st.warning("Please enter prompt")
+        st.warning("Enter prompt")
 
     else:
 
-        with st.spinner("Generating Video..."):
+        with st.spinner("Generating AI Video..."):
 
             video_path = create_video(
                 prompt,
