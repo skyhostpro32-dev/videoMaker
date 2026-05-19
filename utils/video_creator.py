@@ -6,41 +6,34 @@ from utils.frame_generator import generate_frame
 
 # ---------------- VIDEO CREATOR ----------------
 
-def create_video(prompt, duration):
+def create_video(prompt, total_frames):
 
     fps = 1
 
     temp_dir = tempfile.mkdtemp()
 
-    frames = []
+    frame_paths = []
 
-    # generate frames
-    for i in range(duration):
+    # ---------------- GENERATE FRAMES ----------------
 
-        img = generate_frame(
-            prompt,
-            i
-        )
+    for i in range(total_frames):
 
-        frame_path = os.path.join(
-            temp_dir,
-            f"frame_{i}.png"
-        )
+        img = generate_frame(prompt, i)
 
-        img.save(frame_path)
+         for i in range(total_frames):
 
-        frames.append(frame_path)
+        img = generate_frame(prompt, i)
 
-        time.sleep(1)
+        
+    # ---------------- VIDEO SETUP ----------------
 
-    # first frame
-    frame = cv2.imread(frames[0])
+    first_frame = cv2.imread(frame_paths[0])
 
-    height, width, layers = frame.shape
+    height, width, layers = first_frame.shape
 
     output_path = os.path.join(
         temp_dir,
-        "youtube_ai_video.mp4"
+        "final_video.mp4"
     )
 
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -52,12 +45,18 @@ def create_video(prompt, duration):
         (width, height)
     )
 
-    # write frames
-    for frame_path in frames:
+    # ---------------- WRITE FRAMES ----------------
 
-        img = cv2.imread(frame_path)
+    for frame_path in frame_paths:
 
-        video.write(img)
+        frame = cv2.imread(frame_path)
+
+        frame = cv2.resize(
+            frame,
+            (width, height)
+        )
+
+        video.write(frame)
 
     video.release()
 
