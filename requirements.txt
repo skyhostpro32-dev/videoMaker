@@ -1,5 +1,9 @@
 streamlit
 requests
-opencv-python-headless
 Pillow
+opencv-python-headless
 numpy
+gtts
+moviepy==1.0.3
+imageio
+imageio-ffmpeg
