@@ -1,10 +1,17 @@
 import streamlit as st
-from utils.video_creator import create_video
+import requests
+from PIL import Image
+from io import BytesIO
+import cv2
+import numpy as np
+import tempfile
+import os
+import time
 
 # ---------------- PAGE CONFIG ----------------
 
 st.set_page_config(
-    page_title="AI Video Generator",
+    page_title="AI YouTube Video Generator",
     layout="wide"
 )
 
@@ -74,7 +81,111 @@ duration = st.slider(
     5
 )
 
-# ---------------- BUTTON ----------------
+# ---------------- FRAME GENERATOR ----------------
+
+def generate_frame(prompt, frame_num):
+
+    frame_prompt = (
+        f"{prompt}, cinematic scene {frame_num}, "
+        "ultra realistic, cinematic lighting, 4K"
+    )
+
+    url = (
+        "https://image.pollinations.ai/prompt/"
+        + frame_prompt.replace(" ", "%20")
+    )
+
+    for attempt in range(3):
+
+        try:
+
+            response = requests.get(
+                url,
+                timeout=120
+            )
+
+            if response.status_code == 200:
+
+                img = Image.open(
+                    BytesIO(response.content)
+                )
+
+                return img
+
+        except:
+            time.sleep(2)
+
+    # fallback image
+    fallback = Image.new(
+        "RGB",
+        (1280, 720),
+        (20, 20, 20)
+    )
+
+    return fallback
+
+# ---------------- VIDEO CREATOR ----------------
+
+def create_video(prompt, duration):
+
+    fps = 1
+
+    temp_dir = tempfile.mkdtemp()
+
+    frames = []
+
+    # generate frames
+    for i in range(duration):
+
+        img = generate_frame(prompt, i)
+
+        frame_path = os.path.join(
+            temp_dir,
+            f"frame_{i}.png"
+        )
+
+        img.save(frame_path)
+
+        frames.append(frame_path)
+
+        time.sleep(1)
+
+    # read first frame
+    first_frame = cv2.imread(frames[0])
+
+    height, width, layers = first_frame.shape
+
+    video_path = os.path.join(
+        temp_dir,
+        "youtube_ai_video.mp4"
+    )
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+    video = cv2.VideoWriter(
+        video_path,
+        fourcc,
+        fps,
+        (width, height)
+    )
+
+    # add frames
+    for frame_path in frames:
+
+        frame = cv2.imread(frame_path)
+
+        frame = cv2.resize(
+            frame,
+            (width, height)
+        )
+
+        video.write(frame)
+
+    video.release()
+
+    return video_path
+
+# ---------------- GENERATE BUTTON ----------------
 
 if st.button("🚀 Generate AI Video"):
 
